@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+
+
+  provider = "prisma-client-js"
+  // output   = "../src/generated/prisma"
+
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  username  String?
+  email     String   @unique
+  password  String?          // optionnel si login Google
+  isConfirmed Boolean  @default(false)
+  role      UserRole @default(USER)
+  provider  Provider @default(LOCAL)
+  providerId String?          
+  favorites String[] @db.ObjectId
+  verificationToken String?  // Token for email verification
+  tokenExpiry       DateTime? // Expiry date for verification token
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reviews   Review[]
+  
+  @@map("users")
+}
+
+enum Provider {
+  LOCAL
+  GOOGLE
+  MICROSOFT
+  GITHUB
+}
+
+
+model Movie {
+
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  title               String
+  overview            String
+  releaseDate         DateTime?
+  runtime             Int?
+  genres              String[]
+  posterPath          String?
+  director            String?
+  tmdbId              String   @unique
+  imdbId              String?
+  producers           String[]
+  cast                String[]
+  productionCompanies String[]
+  ratingsAverage      Float?  // Calculé depuis Review
+  ratingsCount        Int?    // Calculé depuis Review
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  reviews             Review[]
+ 
+  @@map("movies")
+
+}
+ 
+ 
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  movieId   String   @db.ObjectId
+  userId    String   @db.ObjectId
+  rating    Int
+  comment   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  movie Movie @relation(fields: [movieId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@map("reviews")
+}

@@ -1,0 +1,103 @@
+Tomato Reviews 
+
+Résumé
+Tomato Reviews est une application Next.js (app router) qui sert de base pour un site de critiques de films. 
+Elle utilise Prisma (MongoDB) pour la persistance, NextAuth pour l'authentification et intègre un mini-backoffice 
+d'administration (import TMDB, gestion films/utilisateurs). Le design est sombre (noir/rouge) et basé sur Tailwind CSS.
+
+But du proj
+- Permettre lister/consulter des films
+- Permettre aux utilisateurs de se connecter, noter et commenter
+- Fournir un espace admin pour importer des films depuis TMDB, éditer et supprimer des enregistrements
+
+Prérequis
+- Node.js (16+ recommandé)
+- npm 
+- Une base MongoDB (connection via DATABASE_URL)
+- clé TMDB pour récupérer des images/détails d'un film via le dash de l'admin
+
+Variables d'environnement
+Créez un fichier .env à la racine avec au minimum :
+
+- DATABASE_URL: chaine de connexion MongoDB
+- NEXTAUTH_URL=http://localhost:3000
+- NEXTAUTH_SECRET: une chaine secrète pour next-auth
+- TMDB_API_KEY: clé TMDB
+
+Le projet utilise NextAuth ; assurez-vous que NEXTAUTH_URL et NEXTAUTH_SECRET sont définis pour dev.
+
+Installation
+1. Installer les dépendances :
+   npm install
+
+2. Générer le client Prisma :
+   npx prisma generate
+   npx prisma db push
+
+3. Lancer le serveur en dev :
+   npm run dev
+
+Scripts utiles
+
+- npm run dev : démarre l'app en mode développement
+- npm run build : build pour la production
+- npm run start : démarre la build 
+
+Structure du projet 
+- app/ : pages et composants (app router)
+  - app/page.js : page d'accueil
+  - app/movies/ : listing et détail des films
+  - app/api/ : routes API (movies, users, auth, favorites, reviews)
+  - app/dashboard/admin/ : pages d'administration (tmdb-search, movies-list, users-list...)
+- components/ : composants réutilisables (cartes, boutons, modaux)
+- lib/ : helpers (tmdb helper, prisma client, auth middleware)
+- prisma/schema.prisma : schéma Prisma (MongoDB)
+- public/ : assets publics
+
+Principales routes API
+- GET /api/movies : liste des films (publique)
+- POST /api/movies : créer un film (admin)
+- GET /api/movies/:id : récupérer un film
+- PUT /api/movies/:id : modifier un film (admin)
+- DELETE /api/movies/:id : supprimer un film (admin)
+
+- GET /api/users : liste des users (admin)
+- POST /api/users : création user (admin)
+- GET /api/users/:id : récupérer user (tout le monde)
+- PUT /api/users/:id : modifier user (tout le monde)
+- DELETE /api/users/:id : supprimer user (admin)
+
+- Auth : app/api/auth/[...nextauth]/route.js (NextAuth)
+- Favoris / Reviews : routes présentes sous app/api/favorites, app/api/reviews (CRUD basique)
+
+Notes techniques importantes
+- ORM : Prisma connecté à MongoDB. Les IDs sont des ObjectId stockés en string.
+- Images : helper lib/tmdb.js fournit getImageUrl(path, size) pour normaliser les URLs TMDB. Next.js next/image est utilisé dans les cartes ; assurez-vous que next.config.mjs autorise image.tmdb.org si vous chargez des images TMDB.
+- Auth : NextAuth est configuré. Les routes admin utilisent un middleware/service lib/authMiddleware pour valider la session et le rôle ADMIN.
+- Pages admin : certaines pages sont server-side et requièrent que l'utilisateur soit admin (ex: app/dashboard/admin/movies-list/page.jsx) — elles appellent requireAdminPage() côté serveur.
+
+Backoffice (admin)
+- Import TMDB : page pour rechercher un film sur TMDB et l'enregistrer en base.
+- Movies list : tableau admin pour éditer/supprimer films
+- Users list : tableau admin, édition du rôle via modal, suppression
+
+Conseils d'exploitation
+Pour tester des fonctionnalités admin, créez un utilisateur local et attribuez-lui le rôle ADMIN dans la base via npx prisma studio.
+Vérifiez aussi les cookies de session dans DevTools si vous avez des 401 lors des appels PUT/DELETE.
+
+
+Contribuer
+Créer une branche feature, respecter la structure existante (components, app, lib), faire un PR
+
+Licence
+
+MIT
+
+Contact
+
+Emery TOSSAVI - emery.tossavi@epitech.eu
+Elvis AHISSOU - elvis.ahissou@epitech.eu
+Carmelle HOUESSOU - carmelle.houessou@epitech.eu
+Rock HOUINSOU - rock.houinsou@epitech.eu
+
+Pour toute question sur le code : consultez les fichiers README
