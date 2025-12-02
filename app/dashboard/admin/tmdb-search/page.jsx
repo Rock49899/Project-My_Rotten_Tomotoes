@@ -1,5 +1,7 @@
 import TmdbSearchClient from "../../../components/admin/TmdbSearchClient";
 import { requireAdmin } from "../../../../lib/authMiddleware";
+import { redirect } from "next/navigation"
+
 export default async function Page() {
   try {
     await requireAdmin();
