@@ -1,3 +1,5 @@
+
+export const dynamic = "force-dynamic";
 import Link from "next/link";
 import Hero from "./components/layout/hero";
 import { Film, Star, Users, TrendingUp, Play, ChevronRight, Sparkles } from "lucide-react";
